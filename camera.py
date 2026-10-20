@@ -3,7 +3,7 @@ import ctypes as C, ctypes.util, struct, time
 
 VID, PID = 0x2E1A, 0x4C01
 CT, XU = 1, 9  # camera terminal and Insta360 extension unit IDs from the config descriptor
-PANTILT, ZOOM, MODE, PERSON = (CT, 0x0D), (CT, 0x0B), (XU, 2), (XU, 20)
+PANTILT, ZOOM, MODE, PERSON, OUTPUT = (CT, 0x0D), (CT, 0x0B), (XU, 2), (XU, 20), (XU, 28)
 PAN, TILT = (-522000, 522000), (-324000, 360000)  # the camera's GET_MIN/GET_MAX, in 1/3600°
 MODES = {"normal": (0, 0), "tracking": (1, 0), "whiteboard": (4, 1), "overhead": (5, 3), "deskview": (6, 0x10)}
 
@@ -73,6 +73,10 @@ def set_mode(m):
 def person():  # (x, y, w, h) of the detected person as fractions of the frame, or None
     b = get(PERSON, 17)
     return struct.unpack("<4f", b[1:]) if b[0] else None
+
+
+def output():  # (width, height, fps) the camera is sending; read-only, the streaming apps negotiate it
+    return struct.unpack("<IIH", get(OUTPUT, 10))
 
 
 # CoreMediaIO tells us whether any app (Zoom, Teams, a browser …) is streaming from the camera

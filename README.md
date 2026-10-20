@@ -7,6 +7,7 @@ A tiny macOS replacement for the official Insta360 Link Controller app. It's a f
 - **Live preview** with pan/tilt (press and hold the arrows), zoom and a recenter button. In tracking mode, the preview outlines the person the camera detects.
 - **Tutorial** on first start; the **?** button in the header brings it back
 - **Responsive:** a narrow window switches to a compact one-column layout
+- **Call quality:** shows what the camera is sending right now and how to turn on HD in Zoom, Google Meet and Teams
 - **Modes:** Normal, Tracking, DeskView, Whiteboard, Overhead
 - **4 saved positions:** click to recall, ⇧-click to save the current one
 - **Start position:** position ★ 1 is applied automatically whenever any app (Zoom, Teams, a browser …) starts using the camera, and whenever you switch back to *Normal*
@@ -111,7 +112,9 @@ The Link is a standard UVC camera with three vendor extension units. `camera.py`
 |---|---|---|
 | 2 | 52 B | Mode: byte 0 = mode, byte 1 = flag. Normal `00 00`, tracking `01 00`, whiteboard `04 01`, overhead `05 03`, DeskView `06 10`. Reads `FF` while switching. Writing `00` only leaves the top layer (whiteboard → overhead), so the script repeats it until the camera reads back `00`. |
 | 19 | 1 B | Firmware tracking framing: 1 head, 2 half body, 3 full body |
+| 17 | 1 B | `XU_USB_MODE_SWITCH`: writing `01` makes the camera drop off USB and re-enumerate (~9 s). Reads back `00`; the offered formats stay the same. |
 | 20 | 17 B | Person detection: `[detected, x, y, w, h]`, with x/y/w/h as float32 fractions of the frame. Stays live while tracking is off. |
+| 28 | 10 B | `XU_VIDEO_RES`: current output as `uint32 width, uint32 height, uint16 fps`. Writes are ignored; the streaming apps negotiate the format. |
 
 Other details:
 
@@ -119,7 +122,7 @@ Other details:
 - **Why tracking is our own:** firmware tracking pulls any manual tilt back within about a second. So the height offset is a small follow loop instead. Every 0.5 s it reads the person box from selector 20 and moves only if you've left the calm zone. After each move it waits 1.5 s.
 - **Security:** the server listens on `127.0.0.1` only. POST requests need a matching `Origin` header, which blocks other websites and DNS rebinding.
 
-The extension unit selector map builds on [vrwallace/Insta360-Link-1-and-2-Controller-for-Linux](https://github.com/vrwallace/Insta360-Link-1-and-2-Controller-for-Linux). The mode-layer behaviour and selector 20 were found while building this tool.
+The extension unit selector map builds on [vrwallace/Insta360-Link-1-and-2-Controller-for-Linux](https://github.com/vrwallace/Insta360-Link-1-and-2-Controller-for-Linux). Selector names come from the `ControlSelector` enum in [creatorsgarten/insta360-link-controller](https://github.com/creatorsgarten/insta360-link-controller/blob/main/insta360linkcontroller.proto) (selector 8 is the firmware upgrade channel, so don't write to it). The mode-layer behaviour and selectors 17, 20 and 28 were found while building this tool.
 
 ## License
 

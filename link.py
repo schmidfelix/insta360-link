@@ -32,7 +32,8 @@ def settings():  # positions "1"–"4" plus tracking settings (height offset and
 def state():
     pan, tilt = cam.pantilt()
     return {"pan": pan / 3600, "tilt": tilt / 3600, "zoom": cam.zoom(),
-            "mode": "tracking" if tracking else cam.mode(), "person": cam.person(), "settings": settings()}
+            "mode": "tracking" if tracking else cam.mode(), "person": cam.person(),
+            "output": cam.output() if cam.in_use() else None, "settings": settings()}
 
 
 def run(c):

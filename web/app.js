@@ -60,6 +60,8 @@ function render(j) {
     b.setAttribute('aria-label', p ? `Go to position ${n}` : `Position ${n} is empty, shift-click to save`);
   });
 
+  $('#output').textContent = j.output ? `Sending ${j.output[0]}×${j.output[1]} · ${j.output[2]} fps` : 'Camera idle';
+
   const box = tracking && j.person, el = $('#person');
   el.hidden = !box;
   if (box) Object.assign(el.style, {left: box[0] * 100 + '%', top: box[1] * 100 + '%', width: box[2] * 100 + '%', height: box[3] * 100 + '%'});
