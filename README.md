@@ -111,4 +111,10 @@ Other details:
 
 The extension unit selector map builds on [vrwallace/Insta360-Link-1-and-2-Controller-for-Linux](https://github.com/vrwallace/Insta360-Link-1-and-2-Controller-for-Linux). The mode-layer behaviour and selector 20 were found while building this tool.
 
-Not affiliated with Insta360. Use at your own risk.
+## License
+
+[MIT](LICENSE)
+
+---
+
+**Not affiliated with Insta360.** This is a private hobby project. It is not affiliated with, endorsed by, or connected to Arashi Vision Inc. (Insta360) in any way. "Insta360" and "Insta360 Link" are trademarks of Arashi Vision Inc. and are used here only to name the camera this tool works with. All other trademarks belong to their respective owners. Use at your own risk.
