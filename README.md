@@ -2,15 +2,13 @@
 
 A tiny macOS replacement for the official Insta360 Link Controller app. It's a single Python file with no pip packages. You get a small control window with a live preview, plus a background service that puts the camera where you want it every time an app turns it on.
 
-The window's labels are in German.
-
 ## Features
 
 - **Live preview** with pan/tilt (press and hold the arrows), zoom and a home button
 - **Modes:** Normal, Tracking, DeskView, Whiteboard, Overhead
 - **4 saved positions:** click to recall, ⇧-click to save the current one
 - **Start position:** position ★ 1 is applied automatically whenever any app (Zoom, Teams, a browser …) starts using the camera, and whenever you switch back to *Normal*
-- **Tracking with a height offset:** follows you using the camera's own person detection. Two sliders: *Höhe* (height offset in degrees; positive aims higher) and *Ruhe* (calm zone: how many degrees you can move before the camera follows). Tracking never touches the zoom and doesn't jitter.
+- **Tracking with a height offset:** follows you using the camera's own person detection. Two sliders: *Height* (height offset in degrees; positive aims higher) and *Calm* (calm zone: how many degrees you can move before the camera follows). Tracking never touches the zoom and doesn't jitter.
 
 ## Requirements
 

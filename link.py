@@ -41,7 +41,7 @@ def xfer(rtype, req, ctrl, data):
     if not handle:
         handle = usb.libusb_open_device_with_vid_pid(None, VID, PID)
         if not handle:
-            raise OSError("Insta360 Link nicht gefunden")
+            raise OSError("Insta360 Link not found")
     (unit, sel), buf = ctrl, C.create_string_buffer(data, len(data))
     r = usb.libusb_control_transfer(handle, rtype, req, sel << 8, unit << 8, buf, len(data), 1000)
     if r < 0:
@@ -202,7 +202,7 @@ class Handler(BaseHTTPRequestHandler):
         except OSError as e:
             self.reply(503, {"error": str(e)})
         except (KeyError, ValueError, TypeError) as e:
-            self.reply(400, {"error": f"Ungültiger Befehl: {e}"})
+            self.reply(400, {"error": f"Invalid command: {e}"})
 
     def do_GET(self):
         if self.path == "/":
@@ -220,7 +220,7 @@ class Handler(BaseHTTPRequestHandler):
         pass
 
 
-PAGE = """<!doctype html><html lang=de><meta charset=utf-8><meta name=viewport content="width=device-width">
+PAGE = """<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width">
 <title>Insta360 Link</title>
 <style>
 :root{color-scheme:light dark;--bg:#f5f5f4;--card:#fff;--fg:#1c1917;--mut:#78716c;--line:#e7e5e4;--acc:#ea580c}
@@ -239,27 +239,27 @@ button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .pad button{height:52px;font-size:18px}
 .slider{display:flex;gap:10px;align-items:center}
 .slider+.slider{margin-top:4px}
-.lbl{width:34px;color:var(--mut);font-size:12px}
+.lbl{width:44px;color:var(--mut);font-size:12px}
 input[type=range]{flex:1;accent-color:var(--acc)}
 small,#st{display:block;margin-top:8px;color:var(--mut);font-size:12px}
 </style>
 <main><video id=cam autoplay muted playsinline></video><div id=st></div></main>
 <div class=ctl>
-<section><h2>Modus</h2><div class=row>
+<section><h2>Mode</h2><div class=row>
 <button data-mode=normal>Normal</button><button data-mode=tracking>Tracking</button><button data-mode=deskview>DeskView</button>
 <button data-mode=whiteboard>Whiteboard</button><button data-mode=overhead>Overhead</button></div></section>
 <section><h2>Tracking</h2>
-<div class=slider><span class=lbl>Höhe</span><input id=offset type=range min=-10 max=10 aria-label=Tracking-Höhe><span id=offset-l></span></div>
-<div class=slider><span class=lbl>Ruhe</span><input id=calm type=range min=1 max=10 aria-label=Ruhezone><span id=calm-l></span></div>
-<small>Höhe +: Kamera zielt höher, weniger Brust im Bild. Ruhe: so viele Grad darfst du dich bewegen, bevor sie nachführt.</small></section>
-<section><h2>Schwenken</h2><div class=pad>
-<span></span><button data-dx=0 data-dy=1 aria-label=hoch>▲</button><span></span>
-<button data-dx=-1 data-dy=0 aria-label=links>◀</button><button data-home aria-label=Mitte>⌂</button><button data-dx=1 data-dy=0 aria-label=rechts>▶</button>
-<span></span><button data-dx=0 data-dy=-1 aria-label=runter>▼</button><span></span></div></section>
+<div class=slider><span class=lbl>Height</span><input id=offset type=range min=-10 max=10 aria-label="Tracking height"><span id=offset-l></span></div>
+<div class=slider><span class=lbl>Calm</span><input id=calm type=range min=1 max=10 aria-label="Calm zone"><span id=calm-l></span></div>
+<small>Height +: the camera aims higher, less chest in frame. Calm: how many degrees you can move before the camera follows.</small></section>
+<section><h2>Pan &amp; tilt</h2><div class=pad>
+<span></span><button data-dx=0 data-dy=1 aria-label=up>▲</button><span></span>
+<button data-dx=-1 data-dy=0 aria-label=left>◀</button><button data-home aria-label=center>⌂</button><button data-dx=1 data-dy=0 aria-label=right>▶</button>
+<span></span><button data-dx=0 data-dy=-1 aria-label=down>▼</button><span></span></div></section>
 <section><h2>Zoom</h2><div class=slider><input id=zoom type=range min=100 max=400 aria-label=Zoom><span id=zl></span></div></section>
-<section><h2>Positionen</h2><div class=row>
+<section><h2>Positions</h2><div class=row>
 <button data-preset=1>★ 1</button><button data-preset=2>2</button><button data-preset=3>3</button><button data-preset=4>4</button></div>
-<small>Klick fährt an, ⇧-Klick speichert. ★ 1 wird automatisch angefahren, sobald eine App die Kamera einschaltet.</small></section>
+<small>Click to recall, ⇧-click to save. ★ 1 is applied automatically when an app turns the camera on.</small></section>
 </div>
 <script>
 const $ = s => document.querySelectorAll(s), el = id => document.getElementById(id);
@@ -286,9 +286,9 @@ async function preview() {
   try {
     let cam = await find();
     if (!cam) { (await md.getUserMedia({video: true})).getTracks().forEach(t => t.stop()); cam = await find() }  // device names only show up after camera permission
-    if (!cam) throw Error('Insta360 Link nicht gefunden');
+    if (!cam) throw Error('Insta360 Link not found');
     el('cam').srcObject = await md.getUserMedia({video: {deviceId: {exact: cam.deviceId}, width: {ideal: 1280}}});
-  } catch (e) { el('st').textContent = '⚠ Vorschau: ' + e.message }
+  } catch (e) { el('st').textContent = '⚠ Preview: ' + e.message }
 }
 document.onclick = e => {
   const d = e.target.dataset || {};
