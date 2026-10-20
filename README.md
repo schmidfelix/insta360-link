@@ -1,10 +1,12 @@
 # Insta360 Link Control
 
-A tiny macOS replacement for the official Insta360 Link Controller app. It's a single Python file with no pip packages. You get a small control window with a live preview, plus a background service that puts the camera where you want it every time an app turns it on.
+A tiny macOS replacement for the official Insta360 Link Controller app. It's a few small files with no pip packages. You get a small control window with a live preview, plus a background service that puts the camera where you want it every time an app turns it on.
 
 ## Features
 
-- **Live preview** with pan/tilt (press and hold the arrows), zoom and a home button
+- **Live preview** with pan/tilt (press and hold the arrows), zoom and a recenter button. In tracking mode, the preview outlines the person the camera detects.
+- **Tutorial** on first start; the **?** button in the header brings it back
+- **Responsive:** a narrow window switches to a compact one-column layout
 - **Modes:** Normal, Tracking, DeskView, Whiteboard, Overhead
 - **4 saved positions:** click to recall, ⇧-click to save the current one
 - **Start position:** position ★ 1 is applied automatically whenever any app (Zoom, Teams, a browser …) starts using the camera, and whenever you switch back to *Normal*
@@ -69,7 +71,7 @@ This creates an app named "Insta360 Link" that opens the control window:
 ```sh
 mkdir -p ~/Applications
 osacompile -o ~/Applications/"Insta360 Link.app" \
-  -e 'do shell script "open -na \"Google Chrome\" --args --app=http://127.0.0.1:8360 --window-size=1000,640"'
+  -e 'do shell script "open -na \"Google Chrome\" --args --app=http://127.0.0.1:8360 --window-size=1240,880"'
 ```
 
 ## Usage notes
@@ -81,9 +83,19 @@ osacompile -o ~/Applications/"Insta360 Link.app" \
   - `STEP`: arrow speed.
   - `VFOV` and `HEAD_TOP`: tracking geometry.
 
+## Project layout
+
+| File | What it does |
+|---|---|
+| `link.py` | CLI, local web server, start position and tracking loop |
+| `camera.py` | Hardware access: UVC requests over libusb, camera-in-use detection via CoreMediaIO |
+| `web/` | The control window (`index.html`, `app.css`, `app.js`), plain HTML/CSS/JS without a build step |
+
+The window loads its fonts (Inter, Bricolage Grotesque) from Google Fonts and falls back to system fonts when offline.
+
 ## How it works
 
-The Link is a standard UVC camera with three vendor extension units. `link.py` sends UVC control requests through libusb (via `ctypes`). macOS's own driver keeps streaming at the same time, so this needs no root and no kernel extension, and it works during calls.
+The Link is a standard UVC camera with three vendor extension units. `camera.py` sends UVC control requests through libusb (via `ctypes`). macOS's own driver keeps streaming at the same time, so this needs no root and no kernel extension, and it works during calls.
 
 **Standard UVC** (camera terminal, unit 1):
 

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Link Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="app.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<div class="blobs" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+<div class="app">
+  <header>
+    <div class="brand">
+      <span class="logo"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></span>
+      <span class="brand-name">Link Control</span>
+    </div>
+    <div class="device">
+      <span class="pill device-name">Insta360 Link</span>
+      <span class="pill status" id="status" role="status"><i></i><span>Connecting…</span></span>
+    </div>
+    <button class="icon-btn" id="help" aria-label="Show tutorial" title="Show tutorial">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.4M12 17.2v.1"/></svg>
+    </button>
+  </header>
+
+  <div class="layout">
+    <main>
+      <div class="preview">
+        <video id="video" autoplay muted playsinline aria-label="Live camera preview"></video>
+        <div class="preview-msg" id="preview-msg" hidden></div>
+        <div class="person" id="person" hidden></div>
+        <div class="overlay tl">
+          <span class="chip light"><i class="live-dot"></i><span id="res">Live</span></span>
+          <span class="chip accent" id="mode-chip">…</span>
+        </div>
+        <div class="overlay bl">
+          <span class="chip dark"><b>Pan</b><span id="pan"></span></span>
+          <span class="chip dark"><b>Tilt</b><span id="tilt"></span></span>
+          <span class="chip dark"><b>Zoom</b><span id="zoom-chip"></span></span>
+        </div>
+        <div class="toast" id="toast" role="status" hidden></div>
+      </div>
+
+      <nav class="modes" aria-label="Mode">
+        <button data-mode="normal" aria-pressed="false" aria-label="Normal"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20a7.5 7.5 0 0 1 15 0"/></svg><span>Normal</span></button>
+        <button data-mode="tracking" aria-pressed="false" aria-label="Tracking"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0zM14.5 12a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/></svg><span>Tracking</span></button>
+        <button data-mode="deskview" aria-pressed="false" aria-label="DeskView"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v9H5zM2.5 18h19M12 14v4"/></svg><span>DeskView</span></button>
+        <button data-mode="whiteboard" aria-pressed="false" aria-label="Whiteboard"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 4h17v12h-17zM8 20l4-4 4 4M7 8h6M7 11h9"/></svg><span>Whiteboard</span></button>
+        <button data-mode="overhead" aria-pressed="false" aria-label="Overhead"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8M8.5 7.5L12 11l3.5-3.5M3.5 15h17v5h-17z"/></svg><span>Overhead</span></button>
+      </nav>
+      <p class="hint" id="mode-hint"></p>
+    </main>
+
+    <aside>
+      <section class="card">
+        <div class="card-head"><h2>Pan &amp; tilt</h2><span class="meta" id="pt"></span></div>
+        <div class="dpad">
+          <button class="up" data-dx="0" data-dy="1" aria-label="Tilt up"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+          <button class="down" data-dx="0" data-dy="-1" aria-label="Tilt down"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <button class="left" data-dx="-1" data-dy="0" aria-label="Pan left"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button class="right" data-dx="1" data-dy="0" aria-label="Pan right"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          <button class="home" data-home aria-label="Recenter"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><label class="title" for="zoom">Zoom</label><span class="big" id="zoom-val"></span></div>
+        <div class="row">
+          <button class="round" data-zoom="-10" aria-label="Zoom out"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+          <input id="zoom" type="range" min="100" max="400" step="1">
+          <button class="round" data-zoom="10" aria-label="Zoom in"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Tracking</h2>
+          <span class="badge" id="track-on" hidden>Active</span>
+          <button class="dark-btn" id="track-btn" data-mode="tracking">Turn on</button>
+        </div>
+        <p class="note" id="track-note">Only applies in Tracking mode.</p>
+        <div class="sliders" id="sliders">
+          <div class="slider-head"><label for="offset">Height</label><span id="offset-val"></span></div>
+          <input id="offset" type="range" min="-15" max="15" step="1">
+          <p class="note">Aim higher – less upper body in frame.</p>
+          <div class="slider-head"><label for="calm">Calm</label><span id="calm-val"></span></div>
+          <input id="calm" type="range" min="1" max="10" step="1">
+          <p class="note">Leeway before the camera follows.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Positions</h2>
+        <div class="presets">
+          <button class="preset" data-preset="1"><span class="top"><span class="num">1</span><svg class="i star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></span><span class="sub"></span></button>
+          <button class="preset" data-preset="2"><span class="top"><span class="num">2</span></span><span class="sub"></span></button>
+          <button class="preset" data-preset="3"><span class="top"><span class="num">3</span></span><span class="sub"></span></button>
+          <button class="preset" data-preset="4"><span class="top"><span class="num">4</span></span><span class="sub"></span></button>
+        </div>
+        <p class="note">Click to recall · ⇧-click to save. ★ is applied whenever an app starts the camera.</p>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<dialog class="tour" id="tour" aria-label="Tutorial">
+  <div class="tour-hero">
+    <span class="tour-step" id="tour-step"></span>
+    <button class="tour-close" id="tour-close" aria-label="Close tutorial"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="tour-icon">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0zM14.5 12a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/></svg>
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>
+    </div>
+  </div>
+  <div class="tour-body">
+    <section class="tour-page">
+      <div><h1>Welcome to Link Control</h1>
+      <p class="lead">A small local controller for your Insta360 Link. It talks to the camera directly over USB – no vendor app, no account.</p></div>
+      <ul>
+        <li><span class="n">1</span><span><b>Live preview</b><small>See exactly what your call sees while you adjust.</small></span></li>
+        <li><span class="n">2</span><span><b>Works in the background</b><small>Start position and tracking keep running with this window closed.</small></span></li>
+        <li><span class="n">3</span><span><b>Everything stays local</b><small>Positions and settings are stored right next to the app.</small></span></li>
+      </ul>
+    </section>
+    <section class="tour-page" hidden>
+      <div><h1>Modes &amp; tracking</h1>
+      <p class="lead">Normal keeps the camera where you put it. Tracking follows you around.</p></div>
+      <ul>
+        <li><span class="n">1</span><span><b>Pan, tilt &amp; zoom</b><small>Hold an arrow to move. The center button recenters.</small></span></li>
+        <li><span class="n">2</span><span><b>Height</b><small>Aim the tracking higher for less upper body in frame.</small></span></li>
+        <li><span class="n">3</span><span><b>Calm</b><small>How far you can move before the camera follows.</small></span></li>
+      </ul>
+    </section>
+    <section class="tour-page" hidden>
+      <div><h1>Save your positions</h1>
+      <p class="lead">Keep up to four framings and recall them with one click. The ? button brings this tour back.</p></div>
+      <ul>
+        <li><span class="n">1</span><span><b>⇧-click to save</b><small>Stores the current pan, tilt and zoom in that slot.</small></span></li>
+        <li><span class="n">2</span><span><b>★ 1 is your start position</b><small>Applied automatically whenever an app turns the camera on.</small></span></li>
+        <li><span class="n">3</span><span><b>Back to Normal</b><small>Switching to Normal returns to position 1 as well.</small></span></li>
+      </ul>
+    </section>
+    <div class="tour-foot">
+      <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="tour-actions">
+        <button class="btn ghost" id="tour-back">Back</button>
+        <button class="btn plain" id="tour-skip">Skip</button>
+        <button class="btn primary" id="tour-next" autofocus><span id="tour-next-label">Next</span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+  </div>
+</dialog>
+</body>
+</html>
