@@ -18,6 +18,7 @@ STEP = 2  # degrees per tick while an arrow is held (one tick = 150 ms in the br
 WAKE_DELAY = 1.5  # seconds to wait after the camera turns on before moving to position 1 (it does its own wake-up move first)
 VFOV = 41  # vertical field of view at 1× zoom; measured: 6° of tilt moves the person box by 17 % at 1.18×
 HEAD_TOP = 0.15  # where firmware tracking puts the top of the head, so a height offset of 0° matches the original framing
+DESK_TILT = -45  # degrees; DeskView only flips and straightens the image, the host has to point the camera at the desk
 HERE = Path(__file__).resolve().parent
 SETTINGS_FILE = HERE / "settings.json"
 URL = f"http://127.0.0.1:{PORT}"
@@ -54,6 +55,8 @@ def run(c):
         cam.set_mode("normal" if tracking else c["m"])  # our tracking needs the firmware's tracking off
         if c["m"] == "normal" and "1" in settings():
             run({"cmd": "go", "i": 1})  # normal means back to the start position
+        elif c["m"] == "deskview":
+            cam.set_pantilt(cam.pantilt()[0], DESK_TILT * 3600)
     elif cmd in ("offset", "calm"):
         s = settings()
         s[cmd] = cam.clamp(int(c["v"]), *((-15, 15) if cmd == "offset" else (1, 10)))

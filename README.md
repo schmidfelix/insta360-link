@@ -82,6 +82,7 @@ osacompile -o ~/Applications/"Insta360 Link.app" \
 - A few constants at the top of `link.py` are meant for tuning:
   - `WAKE_DELAY`: increase it if the camera ends up somewhere other than position 1 after turning on.
   - `STEP`: arrow speed.
+  - `DESK_TILT`: how far DeskView tilts down (−45° by default). The arrows still fine-tune it while DeskView is on.
   - `VFOV` and `HEAD_TOP`: tracking geometry.
 
 ## Project layout
@@ -110,7 +111,7 @@ The Link is a standard UVC camera with three vendor extension units. `camera.py`
 
 | Selector | Size | Meaning |
 |---|---|---|
-| 2 | 52 B | Mode: byte 0 = mode, byte 1 = flag. Normal `00 00`, tracking `01 00`, whiteboard `04 01`, overhead `05 03`, DeskView `06 10`. Reads `FF` while switching. Writing `00` only leaves the top layer (whiteboard → overhead), so the script repeats it until the camera reads back `00`. |
+| 2 | 52 B | Mode: byte 0 = mode, byte 1 = flag. Normal `00 00`, tracking `01 00`, whiteboard `04 01`, overhead `05 03`, DeskView `06 10`. Reads `FF` while switching. Writing `00` only leaves the top layer (whiteboard → overhead), so the script repeats it until the camera reads back `00`. DeskView only flips the image 180° and straightens it; the official app tilts the gimbal down itself, so `link.py` does that too. |
 | 19 | 1 B | Firmware tracking framing: 1 head, 2 half body, 3 full body |
 | 17 | 1 B | `XU_USB_MODE_SWITCH`: writing `01` makes the camera drop off USB and re-enumerate (~9 s). Reads back `00`; the offered formats stay the same. |
 | 20 | 17 B | Person detection: `[detected, x, y, w, h]`, with x/y/w/h as float32 fractions of the frame. Stays live while tracking is off. |
